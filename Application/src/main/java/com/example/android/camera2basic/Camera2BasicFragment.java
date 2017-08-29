@@ -159,6 +159,7 @@ public class Camera2BasicFragment extends Fragment
     /**
      * ID of the current {@link CameraDevice}.
      */
+    private int mCameraReq;
     private String mCameraId;
 
     /**
@@ -414,13 +415,19 @@ public class Camera2BasicFragment extends Fragment
         }
     }
 
-    public static Camera2BasicFragment newInstance() {
-        return new Camera2BasicFragment();
+    public static Camera2BasicFragment newInstance(int index) {
+        Camera2BasicFragment f = new Camera2BasicFragment();
+        Bundle args = new Bundle();
+        args.putInt("index", index);
+        f.setArguments(args);
+        return f;
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
+        Bundle args = getArguments();
+        mCameraReq = args.getInt("index", 0);
         return inflater.inflate(R.layout.fragment_camera2_basic, container, false);
     }
 
@@ -495,10 +502,8 @@ public class Camera2BasicFragment extends Fragment
             for (String cameraId : manager.getCameraIdList()) {
                 CameraCharacteristics characteristics
                         = manager.getCameraCharacteristics(cameraId);
-
-                // We don't use a front facing camera in this sample.
-                Integer facing = characteristics.get(CameraCharacteristics.LENS_FACING);
-                if (facing != null && facing == CameraCharacteristics.LENS_FACING_FRONT) {
+                // Check that the camera matches the requested camera
+                if (Integer.parseInt(cameraId) != mCameraReq) {
                     continue;
                 }
 
@@ -803,6 +808,7 @@ public class Camera2BasicFragment extends Fragment
             e.printStackTrace();
         }
     }
+
 
     /**
      * Capture a still picture. This method should be called when we get a response in
